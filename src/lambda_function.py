@@ -63,3 +63,6 @@ def transform_data(df: pd.DataFrame, pii_columns):
         return df
     except Exception as e:
         raise Exception(f"Error transforming data: {e}")
+
+#result = read_data("tests/test_data/csv_dummy.csv")
+#print (result)
