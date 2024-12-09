@@ -1,0 +1,24 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment files
+.env
+
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+
+# ZIP files
+*.zip
+
+# Test data
+tests/test_data/
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
