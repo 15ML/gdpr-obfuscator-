@@ -1,7 +1,7 @@
 import pandas as pd
 # import os
 import pg8000
-from credentials import get_credentials
+from credentials_handler import get_credentials
 
 def connect_to_db():
     """
