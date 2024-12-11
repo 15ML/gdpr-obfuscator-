@@ -43,10 +43,10 @@ class TestReadJsonInputFunction:
         with pytest.raises(ValueError) as invalid_none_response:
             read_json_input(invalid_json_none)
 
-        assert str(invalid_dict_response.value) == "Input must be a JSON string."
-        assert str(invalid_integer_response.value) == "Input must be a JSON string."
-        assert str(invalid_string_response.value) == "Input must be a JSON string."
-        assert str(invalid_none_response.value) == "Input must be a JSON string."
+        assert str(invalid_dict_response.value) == "Input must be a JSON string and cannot be empty."
+        assert str(invalid_integer_response.value) == "Input must be a JSON string and cannot be empty."
+        assert str(invalid_string_response.value) == "Input is not a valid JSON string as expected"
+        assert str(invalid_none_response.value) == "Input must be a JSON string and cannot be empty."
         
 
 
