@@ -7,12 +7,13 @@ def read_json_input(json_string):
     Check if the input is a JSON string, if not raise an error.
     Parse the input JSON string
     """
+    
     if not isinstance(json_string, str) or not json_string.strip():
-        raise ValueError("Input must be a JSON string and cannot be empty.")
+        raise ValueError("Input must be a valid JSON string and cannot be empty.")
     try:
         input_data = json.loads(json_string)
     except json.JSONDecodeError:
-        raise ValueError("Input is not a valid JSON string as expected")
+        raise ValueError("Input is not a valid JSON format as expected")
     
     file_to_obfuscate = input_data['file_to_obfuscate']
     pii_fields = input_data['pii_fields']
