@@ -1,6 +1,9 @@
 import json
 import pandas as pd
 import io
+import boto3
+
+s3 = boto3.client('s3')
 
 def read_json_input(json_string):
     """
@@ -28,6 +31,32 @@ def read_json_input(json_string):
         raise ValueError(f"Unsupported file type: {file_type}. Supported types are csv, parquet, and json.")
     return file_to_obfuscate, pii_fields
 
+
+def download_s3_file_and_convert_to_pandas_dataframe(file_to_obfuscate):
+
+    if not file_to_obfuscate.startswith("s3://"):
+        raise ValueError("Invalid file path: Expected an S3 URI starting with 's3://'.")
+
+    bucket_name, key = file_to_obfuscate[5:].split("/", 1)
+    response = s3.get_object(Bucket=bucket_name, Key=key)
+    file_content = response['body'].read()
+
+    _, file_type = file_to_obfuscate.rsplit(".", 1)
+    file_type = file_type.lower()
+
+    match file_type:
+        case "csv":
+            return pd.read_csv(io.StringIO(file_content.decode('utf-8')))
+        case "json":
+            return pd.read_json(io.StringIO(file_content.decode('utf-8')))
+        case "parquet":
+            return pd.read_parquet(io.BytesIO(file_content))
+        case _:
+            raise ValueError(f"Unsupported file type: {file_type}." 
+                             f"Supported file types are csv, parquet, and JSON."
+                             f"File path: {file_to_obfuscate}")
+
+
 def obfuscate_pii_fields(df: pd.DataFrame, pii_fields):
 
     df = df.copy()
@@ -37,7 +66,8 @@ def obfuscate_pii_fields(df: pd.DataFrame, pii_fields):
             if column in df.columns:
                 if df[column].isnull().any():
                     df[column] = df[column].fillna("MISSING VALUE")
-                df[column] = "******"
+                else:
+                    df[column] = "******"
         return df
     except Exception as e:
         raise Exception(f"Error obfuscating data!" 

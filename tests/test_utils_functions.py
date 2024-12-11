@@ -3,11 +3,12 @@ import pprint
 import pandas as pd
 from src.utils import read_json_input, obfuscate_pii_fields, dataframe_to_bytes
 
-@pytest.fixture
-def valid_json_string_input():
-    file_path = "{\"file_to_obfuscate\": \"s3://my_ingestion_bucket/new_data/file1.csv\", \"pii_fields\": [\"name\", \"email_address\"]}"
-    return file_path
+#@pytest.fixture
+#def valid_json_string_input():
+ #   file_path = "{\"file_to_obfuscate\": \"s3://my_ingestion_bucket/new_data/file1.csv\", \"pii_fields\": [\"name\", \"email_address\"]}"
+  #  return file_path
 
+#@pytest
 class TestReadJsonInputFunction:
 
     def test_no_errors_raised_when_given_valid_json_input_no_dependency(self):
@@ -24,10 +25,13 @@ class TestReadJsonInputFunction:
         assert actual_results == expected_results
     
     
-    def test_no_errors_raised_when_given_valid_json_input_with_dependency_injection(self, valid_json_string_input):
+    def test_no_errors_raised_when_given_valid_json_input_with_dependency_injection(self):
 
-        dummy_input = valid_json_string_input
-        actual_results = read_json_input(dummy_input)
+        def valid_json_string_input():
+            file_path = "{\"file_to_obfuscate\": \"s3://my_ingestion_bucket/new_data/file1.csv\", \"pii_fields\": [\"name\", \"email_address\"]}"
+            return file_path
+        
+        actual_results = read_json_input(valid_json_string_input())
         expected_results = ("s3://my_ingestion_bucket/new_data/file1.csv",
                                  ["name", "email_address"])
         assert actual_results == expected_results
@@ -64,6 +68,17 @@ class TestReadJsonInputFunction:
         assert str(invalid_string_response.value) == "Input is not a valid JSON format as expected"
         assert str(invalid_none_response.value) == "Input must be a valid JSON string and cannot be empty."
         
+
+class TestObfuscatePiiFields:
+
+    def test_function_handles_missing_values_with_fillna(self):
+        
+        file_path = "tests/dummy_test_data/parquet_dummy.parquet"
+        parquet_df = pd.read_parquet(file_path)
+        pii_fields = ['email_address']
+        results = obfuscate_pii_fields(parquet_df, pii_fields)
+
+        assert results['email_address'][2] == "MISSING VALUE"
 
 
 
