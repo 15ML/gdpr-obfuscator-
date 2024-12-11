@@ -57,5 +57,16 @@ def download_s3_file_and_convert_to_pandas_dataframe(file_to_obfuscate):
         case "parquet":
             return pd.read_parquet(io.BytesIO(file_content))
         case _:
-            raise ValueError(f"Unsupported file type: {file_type}. Supported types are csv, parquet, and json.")
+            raise ValueError(f"Unsupported file type: {file_type}." 
+                             f"Supported file types are csv, parquet, and JSON."
+                             f"File path: {file_to_obfuscate}")
         
+def obfuscate_pii_fields(df: pd.DataFrame, pii_fields):
+
+    for column in pii_fields:
+        if column in df.columns:
+            if df[column].isnull().any():
+                df[column] = df[column].fillna("MISSING VALUE")
+            df[column] = "******"
+        return df
+    
