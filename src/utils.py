@@ -59,15 +59,23 @@ def download_s3_file_and_convert_to_pandas_dataframe(file_to_obfuscate):
 
 def obfuscate_pii_fields(df: pd.DataFrame, pii_fields):
 
+    missing_columns = [col for col in pii_fields if col not in df.columns]
+
+    if df.empty:
+        raise ValueError("Input DataFrame is empty. Cannot proceed with processing.")
+        return df
+    if missing_columns:
+        raise ValueError(f"The following columns to obfuscate are missing in the DataFrame provided. Missing columns: {', '.join(missing_columns)}")
+
+
     df = df.copy()
 
     try:
         for column in pii_fields:
-            if column in df.columns:
-                if df[column].isnull().any():
-                    df[column] = df[column].fillna("MISSING VALUE")
-                else:
-                    df[column] = "******"
+            if df[column].isnull().any():
+                df[column] = df[column].fillna("MISSING VALUE")
+            else:
+                df[column] = "******"
         return df
     except Exception as e:
         raise Exception(f"Error obfuscating data!" 

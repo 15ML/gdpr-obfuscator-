@@ -80,6 +80,68 @@ class TestObfuscatePiiFields:
 
         assert results['email_address'][2] == "MISSING VALUE"
 
+    def test_empty_dataframe_input_returns_empty_dataframe_output_and_valueerror_message(self):
+
+        empty_df = pd.DataFrame()
+        pii_fields = ['email_address']
+        result = None
+
+        try:
+            result = obfuscate_pii_fields(empty_df, pii_fields)
+        except ValueError as e:
+            # Testing for ValueError message
+            assert str(e) == "Input DataFrame is empty. Cannot proceed with processing."
+
+        # Testing empty df output
+        if result is not None:
+            assert result.empty
+
+    def test_successful_obfuscation_with_dummy_csv_no_missing_values(self):
+
+        file_path = "tests/dummy_test_data/csv_dummy.csv"
+        with open (file_path, "r") as file:
+            csv_data = pd.read_csv(file)
+
+        pii_fields = ['name', 'email_address']
+        results = obfuscate_pii_fields(csv_data, pii_fields)
+
+        expected_name = ["******", "******", "******"]
+        expected_email = ["******", "******", "******"]
+
+        assert list(results['name']) == expected_name
+        assert list(results['email_address']) == expected_email
+    
+    def test_parquet(self):
+
+        file_path = "tests/dummy_test_data/parquet_dummy.parquet"
+        df = pd.read_parquet(file_path, engine="pyarrow")
+        print("\n", df)
+
+    def test_successful_obfuscation_with_dummy_parquet_and_json_with_missing_values(self):
+
+        parquet_file_path = "tests/dummy_test_data/parquet_dummy.parquet"
+        json_file_path = "tests/dummy_test_data/json_dummy.json"
+
+        parquet_file = pd.read_parquet(parquet_file_path)
+        json_file = pd.read_json(json_file_path)
+
+        pii_fields = ["course", "graduation_date"]
+
+        parquet_results = obfuscate_pii_fields(parquet_file, pii_fields)
+        json_results = obfuscate_pii_fields(json_file, pii_fields)
+
+        expected_parquet_course_results = ["******", "******", "******", "******"]
+        expected_parquet_graduation_results = ["******", "******", "******", "MISSING VALUE"]
+        expected_json_course_results = ["******", "MISSING VALUE", "******"]
+        expected_json_graduation_results = ["******", "******", "MISSING VALUE"]
+
+        assert list(parquet_results['course']) == expected_parquet_course_results
+        assert list(parquet_results['graduation_date']) == expected_parquet_graduation_results
+        assert list(json_results['course']) == expected_json_course_results
+        assert list(json_results['graduation_date']) == expected_json_graduation_results
+
+
+
 
 
 
