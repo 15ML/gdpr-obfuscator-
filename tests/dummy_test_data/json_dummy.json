@@ -1,27 +1,42 @@
 [
     {
-      "student_id": 1,
-      "name": "John Doe",
-      "course": "Computer Science",
-      "cohort": "2024",
-      "graduation_date": "2024-06-15",
-      "email_address": "johndoe@example.com"
+        "student_id": 1,
+        "name": null,
+        "course": "Computer Science",
+        "cohort": "2023",
+        "graduation_date": "2023-06-15",
+        "email_address": "alice@example.com"
     },
     {
-      "student_id": 2,
-      "name": "Jane Smith",
-      "course": null,
-      "cohort": "2023",
-      "graduation_date": "2023-12-20",
-      "email_address": "janesmith@example.com"
+        "student_id": 2,
+        "name": "Jane Smith",
+        "course": "Mathematics",
+        "cohort": "2023",
+        "graduation_date": "2023-12-20",
+        "email_address": null
     },
     {
-      "student_id": 3,
-      "name": "Joe Biden",
-      "course": "Artificial Intelligence",
-      "cohort": "2025",
-      "graduation_date": null,
-      "email_address": "missingname@example.com"
+        "student_id": 3,
+        "name": "Joe Biden",
+        "course": "Physics",
+        "cohort": "2023",
+        "graduation_date": "2023-11-10",
+        "email_address": "joebiden@example.com"
+    },
+    {
+        "student_id": 4,
+        "name": null,
+        "course": "Biology",
+        "cohort": "2024",
+        "graduation_date": "2024-05-20",
+        "email_address": "charlie@example.com"
+    },
+    {
+        "student_id": 5,
+        "name": "Sam Carter",
+        "course": "History",
+        "cohort": "2023",
+        "graduation_date": "2023-08-30",
+        "email_address": null
     }
-  ]
-  
+]

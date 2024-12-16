@@ -2,6 +2,7 @@ import json
 import pandas as pd
 import io
 import boto3
+import numpy as np
 
 s3 = boto3.client('s3')
 
@@ -72,10 +73,12 @@ def obfuscate_pii_fields(df: pd.DataFrame, pii_fields):
 
     try:
         for column in pii_fields:
-            if df[column].isnull().any():
-                df[column] = df[column].fillna("MISSING VALUE")
-            else:
-                df[column] = "******"
+            df[column] = np.where(df[column].isnull(), "MISSING VALUE", "******")
+            
+            #if df[column].isnull().any():
+                #df[column] = df[column].fillna("MISSING VALUE")
+            #else:
+                #df[column] = "******"
         return df
     except Exception as e:
         raise Exception(f"Error obfuscating data!" 
