@@ -1,7 +1,6 @@
 import pytest
-import pprint
 import pandas as pd
-from src.utils import read_json_input, obfuscate_pii_fields, dataframe_to_bytes
+from src.utils import read_json_input, obfuscate_pii_fields
 
 #@pytest.fixture
 #def valid_json_string_input():

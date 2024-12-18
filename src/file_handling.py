@@ -28,3 +28,20 @@ def download_s3_file_and_convert_to_pandas_dataframe(file_to_obfuscate):
                              f"Supported file types are csv, parquet, and JSON."
                              f"File path: {file_to_obfuscate}")
         
+
+def dataframe_to_bytes(df: pd.DataFrame, file_type):
+
+    buffer = io.BytesIO()
+
+    match file_type:
+        case "csv":
+            df.to_csv(buffer, Index=False)
+        case "parquet":
+            df.to_parquet(buffer, Index=False)
+        case "json":
+            buffer.write(df.to_json(orient="records").encode('utf-8'))
+        case _:
+            raise ValueError(f"Unsupported file type: {file_type}")
+        
+    buffer.seek(0)
+    return buffer.getvalue()
