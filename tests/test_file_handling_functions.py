@@ -1,24 +1,38 @@
+import unittest
 from moto import mock_aws
 import boto3
-import pytest
 import pandas as pd
 from src.file_handling import download_s3_file_and_convert_to_pandas_dataframe, dataframe_to_bytes
 
+class TestDownloadS3ConvertPandasFunction(unittest.TestCase):
+    def set_up_mock_s3(self):
+        """Set up the mock S3 environment before each test."""
+        self.s3 = boto3.resource('s3', region_name='eu-west-2')
+        self.bucket_name = 'mybucket'
+        self.object_key = 'test.csv'
+        # Create the bucket and upload the file
+        self.bucket = self.s3.create_bucket(Bucket=self.bucket_name)
+        self.bucket.Object(self.object_key).put(Body=b"name,email_address\nDavid Attenborough,david_a@email.com")
 
-def test_download_csv_directly():
-    with mock_aws():
-        # Set up the mock S3 environment
-        s3 = boto3.client('s3', region_name='eu-west-2')
-        s3.create_bucket(Bucket='mybucket', CreateBucketConfiguration={'LocationConstraint': 'eu-west-2'})
-        s3.put_object(Bucket='mybucket', Key='test.csv', Body="name,email_address\nDavid Attenborough,david_a@email.com")
 
-        # Assuming the function is supposed to handle the CSV correctly
-        df = download_s3_file_and_convert_to_pandas_dataframe("s3://mybucket/test.csv")
+    @mock_aws
+    def test_download_csv(self):
+        """Test downloading a CSV file and converting to dataframe."""
+        df = download_s3_file_and_convert_to_pandas_dataframe(f's3://{self.bucket_name}/{self.csv_object_key}')
+        expected_df = pd.DataFrame({'name': ["David Attenborough"], 'email_address': ["david_a@email.com"]})
+        pd.testing.assert_frame_equal(df, expected_df)
 
-        # Asserts to check the dataframe contents
-        assert not df.empty, "The dataframe is empty"
-        assert df.iloc[0]['name'] == "David Attenborough", "Name does not match expected"
+    def tearDown(self):
+        """Clean up resources after tests."""
+        # Clean up logic here, if necessary
 
+if __name__ == '__main__':
+    unittest.main()
+
+
+    # @mock_aws
+    # def test_download_invalid_csv_filepath_from_s3(self):
+    #     self.bucket.
 
 # @pytest.fixture(scope="function")
 # def aws_mock_credentials():
