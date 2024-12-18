@@ -11,7 +11,7 @@ def download_s3_file_and_convert_to_pandas_dataframe(file_to_obfuscate):
 
     bucket_name, key = file_to_obfuscate[5:].split("/", 1)
     response = s3.get_object(Bucket=bucket_name, Key=key)
-    file_content = response['body'].read()
+    file_content = response['Body'].read()
 
     _, file_type = file_to_obfuscate.rsplit(".", 1)
     file_type = file_type.lower()
@@ -35,9 +35,9 @@ def dataframe_to_bytes(df: pd.DataFrame, file_type):
 
     match file_type:
         case "csv":
-            df.to_csv(buffer, Index=False)
+            df.to_csv(buffer, index=False)
         case "parquet":
-            df.to_parquet(buffer, Index=False)
+            df.to_parquet(buffer, index=False)
         case "json":
             buffer.write(df.to_json(orient="records").encode('utf-8'))
         case _:
