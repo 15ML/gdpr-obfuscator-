@@ -1,4 +1,6 @@
 import pytest
+import os
+import json
 import boto3
 from moto import mock_aws
 
@@ -21,16 +23,38 @@ def mock_s3_setup(aws_creds):
             Bucket="mybucket",
             CreateBucketConfiguration={"LocationConstraint": "eu-west-2"}
         )
-
+        # ----------------------------------------------------------------
         # Upload an valid CSV file
         csv_content = "student_id,name,course,cohort,graduation_date,email_address\n1234,Jane Walker,Data Science,2023-08-15,2025-06-30,jane.walker@example.com"
-        s3.put_object(Bucket="mybucket", Key="data.csv", Body=csv_content)
+        s3.put_object(Bucket="mybucket", Key="csv_data.csv", Body=csv_content)
 
         # Upload an empty CSV file
         empty_csv_content = ""
-        s3.put_object(Bucket="mybucket", Key="empty.csv", Body=empty_csv_content)
+        s3.put_object(Bucket="mybucket", Key="csv_empty.csv", Body=empty_csv_content)
 
         # Upload a CSV file with columns but no values
         empty_csv_values_content = "student_id,name,course,cohort,graduation_date,email_address"
-        s3.put_object(Bucket="mybucket", Key="empty_values.csv", Body=empty_csv_values_content)
+        s3.put_object(Bucket="mybucket", Key="csv_empty_values.csv", Body=empty_csv_values_content)
+
+        # ----------------------------------------------------------------
+        # Upload a valid JSON file with different data
+        json_content = json.dumps({
+            "data": [
+                {"student_id": 5678, "name": "Alex Johnson", "course": "Computer Science", "cohort": "2024-01-10", "graduation_date": "2026-05-15", "email_address": "alex.johnson@example.com"}
+            ]
+        })
+        s3.put_object(Bucket="mybucket", Key="json_data.json", Body=json_content)
+
+        # Upload an empty JSON file
+        empty_json_content = json.dumps({})
+        s3.put_object(Bucket="mybucket", Key="json_empty.json", Body=empty_json_content)
+
+        # Upload a JSON file with structure but no data entries
+        empty_json_values_content = json.dumps({
+            "data": [
+                {"student_id": None, "name": None, "course": None, "cohort": None, "graduation_date": None, "email_address": None}
+            ]
+        })
+        s3.put_object(Bucket="mybucket", Key="json_empty_values.json", Body=empty_json_values_content)
+
         yield
