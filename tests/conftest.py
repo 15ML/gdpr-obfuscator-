@@ -2,6 +2,8 @@ import pytest
 import os
 import json
 import boto3
+import pandas as pd
+import io
 from moto import mock_aws
 
 # Fixtures for mocking AWS and credentials
@@ -56,5 +58,24 @@ def mock_s3_setup(aws_creds):
             ]
         })
         s3.put_object(Bucket="mybucket", Key="json_empty_values.json", Body=empty_json_values_content)
+
+        # ----------------------------------------------------------------
+        # Create a sample DataFrame for Parquet
+        parquet_df = pd.DataFrame({
+            "student_id": [7890],
+            "name": ["Emily Carter"],
+            "course": ["Data Analytics"],
+            "cohort": ["2023-09-01"],
+            "graduation_date": ["2026-06-30"],
+            "email_address": ["emily.carter@example.com"]
+        })
+
+        # Convert the DataFrame to Parquet format in memory
+        parquet_buffer = io.BytesIO()
+        parquet_df.to_parquet(parquet_buffer, index=False)
+        parquet_buffer.seek(0)
+
+        # Upload the mocked Parquet file to the mock S3 bucket
+        s3.put_object(Bucket="mybucket", Key="parquet_data.parquet", Body=parquet_buffer.getvalue())
 
         yield
