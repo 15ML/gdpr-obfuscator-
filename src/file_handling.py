@@ -22,7 +22,6 @@ def download_s3_file_and_convert_to_pandas_dataframe(file_to_obfuscate):
     # file_content = response['Body'].read()
 
     try:
-        # Your existing logic
         bucket_name, key = file_to_obfuscate[5:].split("/", 1)
         response = s3.get_object(Bucket=bucket_name, Key=key)
         file_content = response['Body'].read()
