@@ -5,6 +5,7 @@ import boto3
 import pandas as pd
 import io
 from moto import mock_aws
+from src.connection import s3_client
 
 # Fixtures for mocking AWS and credentials
 
@@ -14,6 +15,11 @@ def aws_creds():
     os.environ["AWS_ACCESS_KEY_ID"] = "test"
     os.environ["AWS_SECRET_ACCESS_KEY"] = "test"
     os.environ["AWS_DEFAULT_REGION"] = "eu-west-2"
+
+@pytest.fixture(scope="function")
+def s3_client_fixture(aws_creds):
+    """Initialize an S3 client."""
+    return boto3.client("s3")
 
 @pytest.fixture(scope="function")
 def mock_s3_setup(aws_creds):

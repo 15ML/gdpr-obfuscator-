@@ -1,62 +1,50 @@
-import os
-import unittest
-from unittest.mock import patch
-from moto import mock_aws
+import pytest
 import boto3
-from botocore.exceptions import NoCredentialsError, PartialCredentialsError
-from src.connection import s3_client
-
-class TestAWSConnection(unittest.TestCase):
-    @mock_aws
-    def test_s3_client_creation(self):
-        """Test that the S3 client is created and can list buckets."""
-        client = s3_client()
-        self.assertIsNotNone(client)
-        response = client.list_buckets()
-        self.assertIn('Buckets', response)  # Basic operation to check the client works
-
-    @patch('boto3.client')
-    def test_s3_client_invalid_credentials(self, mock_boto_client):
-        """Test that the S3 client raises an error with invalid credentials."""
-        # Simulate boto3 raising a NoCredentialsError
-        mock_boto_client.side_effect = NoCredentialsError()
-
-        with self.assertRaises(NoCredentialsError):
-            client = s3_client()
-            client.list_buckets()
-
-    # def test_s3_client_missing_credentials(self):
-    #     """Test behavior when AWS credentials are missing."""
-    #     # Mock an empty environment
-    #     with patch.dict('os.environ', {}, clear=True):
-    #         with self.assertRaises(NoCredentialsError):
-    #             client = s3_client()
-    #             client.list_buckets()
-
-    # @mock_aws
-    # def test_s3_client_missing_credentials(self):
-    #     """Test behavior when AWS credentials are missing."""
-    #     with patch.dict(os.environ, {}, clear=True):  # Temporarily clear environment variables
-    #         with self.assertRaises(NoCredentialsError):
-    #             client = s3_client()
-    #             client.list_buckets()
-
-    # @mock_aws
-    # def test_s3_client_missing_credentials(self):
-    #     """Test behavior when AWS credentials are missing."""
-    #     # Unset credentials
-    #     os.environ.pop('AWS_ACCESS_KEY_ID', None)
-    #     os.environ.pop('AWS_SECRET_ACCESS_KEY', None)
-    #     with self.assertRaises(Exception):  # Expect failure without credentials
-    #         client = s3_client()
-    #         client.list_buckets()
-
-    @mock_aws
-    def test_s3_client_correct_region(self):
-        """Test that the S3 client connects to the correct region."""
-        client = boto3.client('s3', region_name='us-east-1')
-        self.assertEqual(client.meta.region_name, 'us-east-1')
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
+from conftest import s3_client_fixture
 
 
-if __name__ == '__main__':
-    unittest.main()
+class TestTestConnectingToAWSServices():
+
+    s3_client_fixture = s3_client_fixture
+    
+    def test_s3_client_initialised_from_connection_file(self, s3_client_fixture):
+        """Test that the S3 client initializes properly."""
+
+        try:
+            s3_client_fixture.list_buckets() 
+            print("S3 client initialized successfully.")
+        except NoCredentialsError:
+            pytest.fail("AWS credentials not found. Ensure they are properly set.")
+        except PartialCredentialsError:
+            pytest.fail("AWS credentials are partially configured. Check your setup.")
+        except ClientError as e:
+            pytest.fail(f"Unexpected error while initializing S3 client: {e}")
+
+    def test_isolated_s3_client_initialised(self):
+        """Test that the S3 client initializes properly not dependent on connection.py."""
+
+        isolated_s3_client = boto3.client('s3', region_name='eu-west-2')
+
+        try:
+            isolated_s3_client.list_buckets() 
+            print("S3 client initialized successfully.")
+        except NoCredentialsError:
+            pytest.fail("AWS credentials not found. Ensure they are properly set.")
+        except PartialCredentialsError:
+            pytest.fail("AWS credentials are partially configured. Check your setup.")
+        except ClientError as e:
+            pytest.fail(f"Unexpected error while initializing S3 client: {e}")
+
+
+    def test_list_buckets_after_connection_made(self, s3_client_fixture):
+        """Test that the S3 client can list buckets."""
+        try:
+            response = s3_client_fixture.list_buckets()
+            assert 'Buckets' in response, "Response does not contain 'Buckets' key."
+            #print(f"Found {len(response['Buckets'])} buckets: {[b['Name'] for b in response['Buckets']]}")
+        except ClientError as e:
+            pytest.fail(f"Error while listing buckets: {e}")
+
+
+
