@@ -37,22 +37,20 @@ def mock_s3_setup(aws_creds):
         s3.put_object(Bucket="mybucket", Key="empty_values.csv", Body=empty_csv_values_content)
         yield
 
-# Test for the main.py workflow
-def test_main_function(mock_s3_setup):
-    """Test the main function end-to-end."""
-    # Input JSON simulating user input
-    input_json = '{"file_to_obfuscate": "s3://mybucket/data.csv", "pii_fields": ["email_address", "name"]}'
 
-    # Call the main function
+def test_overall_main_function_flow(mock_s3_setup):
+    """Test the main function end-to-end."""
+
+    input_json = '{"file_to_obfuscate": "s3://mybucket/data.csv", "pii_fields": ["email_address", "name"]}'
     result_bytes = main(input_json)
 
-    # Verify the result (converted obfuscated content to string for testing)
+    # Converted obfuscated content from bytes to string for testing)
     result_content = result_bytes.decode("utf-8")
-    
-    # Expected content: obfuscate 'name' and 'email_address' fields
     expected_content = "student_id,name,course,cohort,graduation_date,email_address\n1234,******,Data Science,2023-08-15,2025-06-30,******\n"
 
+    # The below message will only display if this test fails
     assert result_content == expected_content, "The obfuscated content does not match expected output."
+
 
 def test_integration_partial_pii_fields(mock_s3_setup):
     """Test obfuscation when some PII fields are missing in the file."""
@@ -62,9 +60,9 @@ def test_integration_partial_pii_fields(mock_s3_setup):
         "The following columns to obfuscate are missing in the DataFrame provided. "
         "Missing columns: non_existent_field"
     )
-
     with pytest.raises(ValueError, match=expected_error_message):
         main(input_json)
+
 
 def test_integration_empty_csv(mock_s3_setup):
     """Test handling of an empty CSV file."""
