@@ -12,7 +12,7 @@ class TestTestConnectingToAWSServices():
         """Test that the S3 client initializes properly."""
 
         try:
-            s3_client_fixture.list_buckets() 
+            s3_client_fixture.list_buckets()
             print("S3 client initialized successfully.")
         except NoCredentialsError:
             pytest.fail("AWS credentials not found. Ensure they are properly set.")
