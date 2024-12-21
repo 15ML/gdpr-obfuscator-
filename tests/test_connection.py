@@ -42,7 +42,6 @@ class TestTestConnectingToAWSServices():
         try:
             response = s3_client_fixture.list_buckets()
             assert 'Buckets' in response, "Response does not contain 'Buckets' key."
-            #print(f"Found {len(response['Buckets'])} buckets: {[b['Name'] for b in response['Buckets']]}")
         except ClientError as e:
             pytest.fail(f"Error while listing buckets: {e}")
 

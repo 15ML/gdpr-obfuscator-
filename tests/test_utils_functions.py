@@ -2,12 +2,6 @@ import pytest
 import pandas as pd
 from src.utils import read_json_input, obfuscate_pii_fields
 
-#@pytest.fixture
-#def valid_json_string_input():
- #   file_path = "{\"file_to_obfuscate\": \"s3://my_ingestion_bucket/new_data/file1.csv\", \"pii_fields\": [\"name\", \"email_address\"]}"
-  #  return file_path
-
-#@pytest
 class TestReadJsonInputFunction:
 
     def test_no_errors_raised_when_given_valid_json_input_no_dependency(self):

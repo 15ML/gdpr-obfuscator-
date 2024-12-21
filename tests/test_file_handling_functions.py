@@ -1,6 +1,4 @@
-import unittest
 import pytest
-import boto3
 import io
 import pandas as pd
 from src.file_handling import download_s3_file_and_convert_to_pandas_dataframe, dataframe_to_bytes
@@ -65,7 +63,7 @@ class TestFinalUserOutputIsConvertedFromDataframeToByteStreamObject():
         )  # Expected CSV byte representation
         assert result == expected, "CSV conversion failed"
         
-        # Use Pandas methods to read csv to confirm output file type
+        # Used Pandas methods to read csv to confirm output file type
         csv_df = pd.read_csv(io.BytesIO(result))
         pd.testing.assert_frame_equal(csv_df, df, check_dtype=False, 
                                       obj="CSV content mismatch after reading back")
@@ -89,7 +87,7 @@ class TestFinalUserOutputIsConvertedFromDataframeToByteStreamObject():
         )  # Expected JSON byte representation
         assert result == expected, "JSON conversion failed"
 
-        # Use Pandas methods to read json to confirm output file type
+        # Used Pandas methods to read json to confirm output file type
         json_df = pd.read_json(io.BytesIO(result))
         pd.testing.assert_frame_equal(json_df, df, check_dtype=False, 
                                       obj="JSON content mismatch after reading back")
@@ -105,13 +103,13 @@ class TestFinalUserOutputIsConvertedFromDataframeToByteStreamObject():
             "graduation_date": ["2025-06-30", "2024-08-20"],
             "email_address": ["j.smith@email.com", "j.doe@email.com"]
         })
-        result = dataframe_to_bytes(df, "parquet")
         # Verify that the result is a valid Parquet file by reading it back
+        result = dataframe_to_bytes(df, "parquet")
         buffer = io.BytesIO(result)
         df_parquet = pd.read_parquet(buffer)
         pd.testing.assert_frame_equal(df, df_parquet)
 
-        # Use Pandas methods to read json to confirm output file type
+        # Used Pandas methods to read json to confirm output file type
         parquet_df = pd.read_parquet(io.BytesIO(result))
         pd.testing.assert_frame_equal(parquet_df, df, check_dtype=False, 
                                       obj="PARQUET content mismatch after reading back")

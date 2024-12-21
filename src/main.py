@@ -21,9 +21,3 @@ def main(input_json):
         print(f"An error occurred: {e}")
         # Optionally re-raise the exception if you want the error to propagate
         raise
-
-# if __name__ == '__main__':
-#     # Example JSON input
-#     input_json = '{"file_to_obfuscate": "s3://yourbucket/data.csv", "pii_fields": ["email_address", "name"]}'
-#     result = main(input_json)
-#     print(result)  # Output the result or handle it as needed

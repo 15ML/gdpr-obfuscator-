@@ -1,17 +1,12 @@
 # Python
 venv/
-__pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
+.pytest_cache/
 
 # Environment files
 .env
-
-# Terraform
-terraform/.terraform/
-terraform/.terraform.lock.hcl
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
 
 # ZIP files
 *.zip
