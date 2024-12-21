@@ -1,10 +1,6 @@
 import json
 import pandas as pd
-import io
-import boto3
 import numpy as np
-
-s3 = boto3.client('s3')
 
 def read_json_input(json_string):
     """
@@ -39,7 +35,6 @@ def obfuscate_pii_fields(df: pd.DataFrame, pii_fields):
 
     if df.empty:
         raise ValueError("Input DataFrame is empty. Cannot proceed with processing.")
-        return df
     if missing_columns:
         raise ValueError(f"The following columns to obfuscate are missing in the DataFrame provided. Missing columns: {', '.join(missing_columns)}")
 
@@ -48,11 +43,6 @@ def obfuscate_pii_fields(df: pd.DataFrame, pii_fields):
     try:
         for column in pii_fields:
             df[column] = np.where(df[column].isnull(), "MISSING VALUE", "******")
-            
-            #if df[column].isnull().any():
-                #df[column] = df[column].fillna("MISSING VALUE")
-            #else:
-                #df[column] = "******"
         return df
     except Exception as e:
         raise Exception(f"Error obfuscating data!" 

@@ -1,4 +1,3 @@
-import json
 from src.file_handling import download_s3_file_and_convert_to_pandas_dataframe, dataframe_to_bytes
 from src.utils import read_json_input, obfuscate_pii_fields
 
@@ -23,8 +22,8 @@ def main(input_json):
         # Optionally re-raise the exception if you want the error to propagate
         raise
 
-if __name__ == '__main__':
-    # Example JSON input
-    input_json = '{"file_to_obfuscate": "s3://yourbucket/data.csv", "pii_fields": ["email_address", "name"]}'
-    result = main(input_json)
-    print(result)  # Output the result or handle it as needed
+# if __name__ == '__main__':
+#     # Example JSON input
+#     input_json = '{"file_to_obfuscate": "s3://yourbucket/data.csv", "pii_fields": ["email_address", "name"]}'
+#     result = main(input_json)
+#     print(result)  # Output the result or handle it as needed
