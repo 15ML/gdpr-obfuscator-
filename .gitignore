@@ -17,3 +17,4 @@ tests/test_data/
 # Miscellaneous
 .DS_Store
 Thumbs.db
+**/cprofile/
