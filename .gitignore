@@ -23,3 +23,7 @@ Thumbs.db
 cprofile/
 *.txt
 **/cprofile/*.txt
+
+# Exclude performance results and scripts
+tests/performance_results/
+tests/test_performance.py
