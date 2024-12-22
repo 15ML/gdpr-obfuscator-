@@ -2,10 +2,16 @@ import pytest
 import pandas as pd
 from src.utils import read_json_input, obfuscate_pii_fields
 
+
 class TestReadJsonInputFunction:
+    """
+    Tests for the `read_json_input` function.
+    """
 
-    def test_no_errors_raised_when_given_valid_json_input_no_dependency(self):
-
+    def test_no_errors_with_valid_json_input_no_dependency(self):
+        """
+        Test that valid JSON input without dependency injection is processed correctly.
+        """
         dummy_input = """
         {
             "file_to_obfuscate": "s3://my_ingestion_bucket/new_data/file1.csv",
@@ -13,100 +19,108 @@ class TestReadJsonInputFunction:
         }
         """
         actual_results = read_json_input(dummy_input)
-        expected_results = ("s3://my_ingestion_bucket/new_data/file1.csv",
-                                 ["name", "email_address"])
+        expected_results = (
+            "s3://my_ingestion_bucket/new_data/file1.csv",
+            ["name", "email_address"],
+        )
         assert actual_results == expected_results
-    
-    
-    def test_no_errors_raised_when_given_valid_json_input_with_dependency_injection(self):
+
+    def test_no_errors_with_valid_json_input_with_dependency(self):
+        """
+        Test that valid JSON input with dependency injection is processed correctly.
+        """
 
         def valid_json_string_input():
-            file_path = "{\"file_to_obfuscate\": \"s3://my_ingestion_bucket/new_data/file1.csv\", \"pii_fields\": [\"name\", \"email_address\"]}"
-            return file_path
-        
+            return """{
+                "file_to_obfuscate": "s3://my_ingestion_bucket/new_data/file1.csv",
+                "pii_fields": ["name", "email_address"]
+            }"""
+
         actual_results = read_json_input(valid_json_string_input())
-        expected_results = ("s3://my_ingestion_bucket/new_data/file1.csv",
-                                 ["name", "email_address"])
+        expected_results = (
+            "s3://my_ingestion_bucket/new_data/file1.csv",
+            ["name", "email_address"],
+        )
         assert actual_results == expected_results
 
+    def test_errors_with_invalid_inputs(self):
+        """
+        Test that invalid inputs raise appropriate errors.
+        """
+        invalid_inputs = [
+            {
+                "file_to_obfuscate": "s3://my_bucket/data/file.csv",
+                "pii_fields": ["name", "email_address"],
+            },
+            '{"file_to_obfuscate": \'\', "pii_fields": []}',
+            123456,
+            "Hello World!",
+            None,
+        ]
+        expected_error_messages = [
+            "Input must be a valid JSON string and cannot be empty.",
+            "Input is not a valid JSON format as expected",
+            "Input must be a valid JSON string and cannot be empty.",
+            "Input is not a valid JSON format as expected",
+            "Input must be a valid JSON string and cannot be empty.",
+        ]
 
-    def test_function_raises_errors_when_passed_different_invalid_inputs(self):
+        for input_data, expected_message in zip(
+            invalid_inputs, expected_error_messages
+        ):
+            with pytest.raises(ValueError, match=expected_message):
+                read_json_input(input_data)
 
-        invalid_json_dict = {
-            "file_to_obfuscate": "s3://my_bucket/data/file.csv",
-            "pii_fields": ["name", "email_address"]
-        }
-        with pytest.raises(ValueError) as invalid_dict_response:
-            read_json_input(invalid_json_dict)
-
-        invalid_empty_json = "{\"file_to_obfuscate\": '', \"pii_fields\": []}"
-        with pytest.raises(ValueError) as invalid_empty_json_response:
-            read_json_input(invalid_empty_json)
-
-        invalid_json_integer = 123456
-        with pytest.raises(ValueError) as invalid_integer_response:
-            read_json_input(invalid_json_integer)
-
-        invalid_json_string = "Hello World!"
-        with pytest.raises(ValueError) as invalid_string_response:
-            read_json_input(invalid_json_string)
-
-        invalid_json_none = None
-        with pytest.raises(ValueError) as invalid_none_response:
-            read_json_input(invalid_json_none)
-
-        assert str(invalid_dict_response.value) == "Input must be a valid JSON string and cannot be empty."
-        assert str(invalid_empty_json_response.value) == "Input is not a valid JSON format as expected"
-        assert str(invalid_integer_response.value) == "Input must be a valid JSON string and cannot be empty."
-        assert str(invalid_string_response.value) == "Input is not a valid JSON format as expected"
-        assert str(invalid_none_response.value) == "Input must be a valid JSON string and cannot be empty."
-        
 
 class TestObfuscatePiiFields:
+    """
+    Tests for the `obfuscate_pii_fields` function.
+    """
 
-    def test_function_handles_missing_values_with_fillna(self):
-        
+    def test_handles_missing_values(self):
+        """
+        Test that missing PII fields are handled with 'MISSING VALUE'.
+        """
         file_path = "tests/dummy_test_data/parquet_dummy.parquet"
         parquet_df = pd.read_parquet(file_path)
-        pii_fields = ['email_address']
+        pii_fields = ["email_address"]
         results = obfuscate_pii_fields(parquet_df, pii_fields)
 
-        assert results['email_address'][1] == "MISSING VALUE"
+        assert results["email_address"][1] == "MISSING VALUE"
 
-    def test_empty_dataframe_input_returns_empty_dataframe_output_and_valueerror_message(self):
-
+    def test_empty_dataframe_returns_error(self):
+        """
+        Test that an empty DataFrame raises a ValueError and returns an empty DataFrame.
+        """
         empty_df = pd.DataFrame()
-        pii_fields = ['email_address']
-        result = None
+        pii_fields = ["email_address"]
 
-        try:
-            result = obfuscate_pii_fields(empty_df, pii_fields)
-        except ValueError as e:
-            # Testing for ValueError message
-            assert str(e) == "Input DataFrame is empty. Cannot proceed with processing."
+        with pytest.raises(
+            ValueError,
+            match="Input DataFrame is empty. Cannot proceed with processing.",
+        ):
+            obfuscate_pii_fields(empty_df, pii_fields)
 
-        # Testing empty df output
-        if result is not None:
-            assert result.empty
-
-    def test_successful_obfuscation_with_dummy_csv_no_missing_values(self):
-
+    def test_successful_obfuscation_csv(self):
+        """
+        Test that PII fields are successfully obfuscated in a CSV file with no missing values.
+        """
         file_path = "tests/dummy_test_data/csv_dummy.csv"
-        with open (file_path, "r") as file:
-            csv_data = pd.read_csv(file)
+        csv_data = pd.read_csv(file_path)
 
-        pii_fields = ['name', 'email_address']
+        pii_fields = ["name", "email_address"]
         results = obfuscate_pii_fields(csv_data, pii_fields)
 
         expected_name = ["******", "******", "******"]
         expected_email = ["******", "******", "******"]
 
-        assert list(results['name']) == expected_name
-        assert list(results['email_address']) == expected_email
-    
+        assert list(results["name"]) == expected_name
+        assert list(results["email_address"]) == expected_email
 
-    def test_successful_obfuscation_with_dummy_parquet_and_json_with_missing_values(self):
-
+    def test_successful_obfuscation_parquet_and_json(self):
+        """
+        Test that PII fields are successfully obfuscated in Parquet and JSON files with missing values.
+        """
         parquet_file_path = "tests/dummy_test_data/parquet_dummy.parquet"
         json_file_path = "tests/dummy_test_data/json_dummy.json"
 
@@ -118,18 +132,36 @@ class TestObfuscatePiiFields:
         parquet_results = obfuscate_pii_fields(parquet_file, pii_fields)
         json_results = obfuscate_pii_fields(json_file, pii_fields)
 
-        expected_parquet_name_results = ["MISSING VALUE", "******", "******", "MISSING VALUE", "******"]
-        expected_parquet_email_results = ["******", "MISSING VALUE",  "******", "******", "MISSING VALUE"]
-        expected_json_name_results = ["MISSING VALUE", "******", "******", "MISSING VALUE", "******"]
-        expected_json_email_results = ["******", "MISSING VALUE",  "******", "******", "MISSING VALUE"]
+        expected_parquet_name = [
+            "MISSING VALUE",
+            "******",
+            "******",
+            "MISSING VALUE",
+            "******",
+        ]
+        expected_parquet_email = [
+            "******",
+            "MISSING VALUE",
+            "******",
+            "******",
+            "MISSING VALUE",
+        ]
+        expected_json_name = [
+            "MISSING VALUE",
+            "******",
+            "******",
+            "MISSING VALUE",
+            "******",
+        ]
+        expected_json_email = [
+            "******",
+            "MISSING VALUE",
+            "******",
+            "******",
+            "MISSING VALUE",
+        ]
 
-        assert list(parquet_results['name']) == expected_parquet_name_results
-        assert list(parquet_results['email_address']) == expected_parquet_email_results
-        assert list(json_results['name']) == expected_json_name_results
-        assert list(json_results['email_address']) == expected_json_email_results
-
-
-
-
-
-
+        assert list(parquet_results["name"]) == expected_parquet_name
+        assert list(parquet_results["email_address"]) == expected_parquet_email
+        assert list(json_results["name"]) == expected_json_name
+        assert list(json_results["email_address"]) == expected_json_email
