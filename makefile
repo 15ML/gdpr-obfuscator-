@@ -20,18 +20,20 @@ install-dependencies: load-env
 activate:
 	@echo "To activate the project's virtual environment, run 'source venv/bin/activate'"
 
-# Set PYTHONPATH
-export-pythonpath:
-	export PYTHONPATH=$$(pwd)
-	@echo "PYTHONPATH set to current directory."
-
-# Run tests with pytest and testdox format
+# Run tests with pytest and Testdox format
 run-tests: load-env
 	@echo "Running tests..."
-	$(ACTIVATE_VENV) && pytest --testdox tests/
+	$(ACTIVATE_VENV) && PYTHONPATH=$$(pwd) pytest --testdox tests/
+
+# Run black for code formatting
+run-black:
+	$(ACTIVATE_VENV) && black --line-length 79 ./src/* ./tests/*
 
 # Run all setup tasks
-all: install-dependencies export-pythonpath run-tests
+all: install-dependencies run-tests
+
+# Run checks and formatting
+run-checks: run-black run-tests
 
 # This .PHONY line tells Make which targets are not files
-.PHONY: install-dependencies export-pythonpath run-tests all load-env activate
+.PHONY: install-dependencies run-tests run-black all run-checks load-env activate
