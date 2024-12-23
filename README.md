@@ -1,70 +1,160 @@
 
-# GDPR Obfuscator Project
+# GDPR Obfuscator
 
-## Overview
-This project is a GDPR-compliant data processing tool designed to handle sensitive data stored in files (CSV, JSON, and Parquet) located in AWS S3. The tool obfuscates Personally Identifiable Information (PII) fields while maintaining the structure and usability of the data.
+The GDPR Obfuscator is a Python-based application designed to easily obfuscate Personally Identifiable Information (PII) in various file formats (CSV, JSON, and Parquet) stored in Amazon S3. This tool ensures data privacy compliance with GDPR requirements.
 
-## Key Features
-- Supports multiple file formats: CSV, JSON, and Parquet.
-- Obfuscates sensitive data to comply with GDPR requirements.
-- Designed for integration with AWS S3 for secure file handling.
-- Modular design with well-structured functions and tests.
-- Extensively tested with pytest, including unit and integration tests.
+## Features
+- **Multi-format Support**: Processes files in CSV, JSON, and Parquet formats.
+- **Data immutability**: The process of data transformations in this application does not mutate the original data sets.
+- **AWS Integration**: Reads files directly from S3 buckets and produces results compatible for S3 write operations.
+- **Customizable**: Specify the fields to obfuscate sensitive data strings using input parameters.
+- **Robust Testing**: Comprehensive unit and integration tests using `pytest`.
 
-## Requirements
-- Python 3.9 or later
-- AWS account with S3 access
-- Libraries listed in `requirements.txt`
+---
 
 ## Setup and Installation
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd gdpr-obfuscator
-   ```
-2. Set up a virtual environment:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # For Windows: venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Configure AWS credentials using environment variables or AWS CLI:
-   ```bash
-   aws configure
-   ```
 
-## Usage
-1. Place the input files in an accessible S3 bucket.
-2. Run the main script to process the data:
-   ```bash
-   python src/main.py --input-json <path-to-json-config>
-   ```
-3. The obfuscated output will be saved back to the specified S3 bucket.
+Follow these steps to set up and use the application:
 
-## Testing
-To run tests, use pytest:
+### 1. Clone the Repository
+First, clone the repository to your local machine using the following command:
+
 ```bash
-pytest tests/
+git clone <replace-with-repository-url>
+cd gdpr-obfuscator
 ```
 
-## Performance Testing
-The tool is designed to handle files of up to 1MB with a runtime of less than 1 minute. For performance testing:
-1. Create 1MB test files in the supported formats.
-2. Use the following script to measure runtime:
-   ```python
-   import time
+### 2. Configure AWS Credentials
+There are two ways to ensure your AWS credentials are configured properly in this application as it looks at two sources for credentials.
+You can either configure the credentials using the AWS CLI or a local .env file. 
 
-   start_time = time.time()
-   # Call the main function
-   elapsed_time = time.time() - start_time
-   print(f"Processing completed in {elapsed_time:.2f} seconds.")
-   ```
+Entering credentials using the AWS CLI:
 
-## Contributing
-Contributions are welcome! Please submit pull requests with clear descriptions and ensure all tests pass before submission.
+```bash
+aws configure
+```
 
-## License
-This project is licensed under the MIT License.
+Alternatively, you can create a `.env` file and define your AWS credentials:
+
+```
+AWS_ACCESS_KEY_ID=<replace-with-your-access-key-id>
+AWS_SECRET_ACCESS_KEY=<replace-with-your-secret-access-key>
+AWS_REGION=<replace-with-your-region>
+```
+Make sure the .env file is placed in the root of the repository to avoid possible errors.
+
+### 3. Set Up the Application Using Make
+Run the following command to automatically set up the application and virtual environment:
+
+```bash
+make all
+```
+
+This will:
+1. Load environment variables from the `.env` file (if present).
+2. Create a virtual environment.
+3. Install all required dependencies listed in `requirements.txt`.
+4. Export the `PYTHONPATH` for the application.
+5. Run all tests to ensure the setup is successful.
+
+---
+
+## Usage
+
+## Before running the applcation
+Ensure that your dataset files are uploaded to an accessible S3 bucket before running the application. Double check policies are in place
+such as the permissions to read files [s3:GetObject](https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html) from your S3 bucket.
+
+### Running the Application
+Once the setup is complete, you will be prompted to provide a JSON object string with the following keys and values:
+
+- **"file_to_obfuscate"**: The S3 URI pointing to the file to be obfuscated (e.g., `"s3://mybucket/myfile.csv"`).
+- **"pii_fields"**: A list of fields to obfuscate (e.g., `["name", "email_address"]`).
+
+### Example Input
+
+Suppose the input dataset is stored in `s3://mybucket/myfile.csv` and contains the following data:
+
+| student_id | name        | course                | cohort   | graduation_date | email_address       |
+|------------|-------------|-----------------------|----------|-----------------|---------------------|
+| 101        | Alice Smith | Data Engineering      | Data     | 2023-06-15      | alice@example.com   |
+| 102        | Bob Jones   | Software Development  | Software | 2023-12-01      | bob@example.com     |
+| 103        | Charlie Tay | Data Engineering      | Data     | 2022-05-20      |                     |
+
+The user specifies the following JSON object string for obfuscation:
+
+```json
+{
+  "file_to_obfuscate": "s3://mybucket/myfile.csv",
+  "pii_fields": ["name", "email_address"]
+}
+```
+
+---
+
+### Example Obfuscated Output
+
+After running the application, the obfuscated dataset might look like this:
+
+| student_id | name       | course                | cohort   | graduation_date | email_address       |
+|------------|------------|-----------------------|----------|-----------------|---------------------|
+| 101        | ******     | Data Engineering      | Data     | 2023-06-15      | ******              |
+| 102        | ******     | Software Development  | Software | 2023-12-01      | ******              |
+| 103        | ******     | Data Engineering      | Data     | 2022-05-20      | MISSING VALUES      |
+
+The fields specified in `pii_fields` are obfuscated by replacing their values with `******` or `MISSING VALUES` for any missing data. The application purposely returns the processed data as a byte-stream object which is compatiblely ready to enter to a desired AWS S3 bucket. The byte-stream representation for the obfuscated dataset might look like this:
+
+```plaintext
+student_id,name,course,cohort,graduation_date,email_address
+101,******,Data Engineering,Winter21,2023-06-15,******
+102,******,Software Development,Summer22,2023-12-01,******
+103,******,Data Engineering,Spring21,2022-05-20,MISSING VALUES
+```
+
+---
+
+
+## Testing
+
+### Running Tests
+All tests would have been ran with the "make all" command on setup. However if you'd like to run all tests again, you can do so by using the following command:
+
+```bash
+make run-tests
+```
+
+This will execute the test suite with `pytest` and display results in a readable format using Testdox.
+
+### Test Suite
+The test suite includes:
+- **Unit Tests**: Validate individual functions and modules.
+- **Integration Tests**: Verify the end-to-end functionality of the application.
+
+---
+
+## Dependencies
+The project requires the following Python libraries:
+- `boto3==1.35.83`: AWS SDK for Python.
+- `botocore==1.35.83`: Core library for AWS SDK.
+- `moto==5.0.23`: AWS mocking library for testing.
+- `pandas==2.2.3`: Data manipulation and analysis.
+- `pytest==8.3.4`: Testing framework.
+- `python-dotenv==0.19.0`: Load environment variables from a `.env` file.
+
+---
+
+## Future Improvements
+As applications continue to develop and improve, some of the many few things that could be added are:
+- Expand input flexibility: Currently only takes json strings of S3 location and fields to obfuscate. Allow for non-json strings and local machine file path support
+- Improve obfuscation ability: Currently only obfuscates string values, allow for obfuscating other data types such as date for DOB, mixed for postal codes.
+- Infrastructure as code: The application could be implemented with cloud technologies for scalability, efficiency, automation and many more advantages.
+- Output visual tools: It would be a great idea to automate visual tools for output such as Tableau.
+
+## Final Thoughts
+
+Thank you for checking out this application! If you found it useful or have any suggestions for improvement, feel free to reach out or contribute. Your feedback is always appreciated.
+
+## Contact
+
+- Email: mike.work.5881@gmail.com
+- LinkedIn: [My LinkedIn Profile](https://www.linkedin.com/in/michael-lee-5358849a/)

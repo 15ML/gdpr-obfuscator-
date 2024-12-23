@@ -10,7 +10,7 @@ load-env:
 	@python -c "from dotenv import load_dotenv; load_dotenv(verbose=True)"
 
 # Set up the virtual environment and install dependencies
-setup: load-env
+install-dependencies: load-env
 	@echo "Setting up the project environment..."
 	python3 -m venv venv
 	$(ACTIVATE_VENV) && pip install -r requirements.txt
@@ -21,17 +21,17 @@ activate:
 	@echo "To activate the project's virtual environment, run 'source venv/bin/activate'"
 
 # Set PYTHONPATH
-export-path:
+export-pythonpath:
 	export PYTHONPATH=$$(pwd)
 	@echo "PYTHONPATH set to current directory."
 
 # Run tests with pytest and testdox format
-test: load-env
+run-tests: load-env
 	@echo "Running tests..."
 	$(ACTIVATE_VENV) && pytest --testdox tests/
 
 # Run all setup tasks
-all: setup activate export-path test
+all: install-dependencies export-pythonpath run-tests
 
 # This .PHONY line tells Make which targets are not files
-.PHONY: setup activate export-path test all load-env
+.PHONY: install-dependencies export-pythonpath run-tests all load-env activate
