@@ -76,7 +76,7 @@ Ensure that your dataset files are uploaded to an accessible S3 bucket before ru
    source venv/bin/activate
 
 ### Running the Application
-Once the setup is complete, you will be prompted to provide a JSON object string with the following keys and values:
+Once the setup is complete, you will need to provide a JSON object string with the following keys and values:
 
 - **"file_to_obfuscate"**: The S3 URI pointing to the file to be obfuscated (e.g., `"s3://mybucket/myfile.csv"`).
 - **"pii_fields"**: A list of fields to obfuscate (e.g., `["name", "email_address"]`).
