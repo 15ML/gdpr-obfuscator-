@@ -5,9 +5,9 @@ The GDPR Obfuscator is a Python-based application designed to easily obfuscate P
 
 ## Features
 - **Multi-format Support**: Processes files in CSV, JSON, and Parquet formats.
-- **Data immutability**: The process of data transformations in this application does not mutate the original data sets.
+- **Data Immutability**: The process of data transformations in this application does not mutate the original datasets.
 - **AWS Integration**: Reads files directly from S3 buckets and produces results compatible for S3 write operations.
-- **Customizable**: Specify the fields to obfuscate sensitive data strings using input parameters.
+- **Customizable**: Specify sensitive data fields to obfuscate using input parameters.
 - **Robust Testing**: Comprehensive unit and integration tests using `pytest`.
 
 ---
@@ -61,9 +61,8 @@ This will:
 
 ## Usage
 
-## Before running the applcation
-Ensure that your dataset files are uploaded to an accessible S3 bucket before running the application. Double check policies are in place
-such as the permissions to read files [s3:GetObject](https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html) from your S3 bucket.
+### Before Running the Application
+Ensure that your dataset files are uploaded to an accessible S3 bucket before running the application. Double-check that policies are in place, such as the permissions to read files ([s3:GetObject](https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)) from your S3 bucket.
 
 ### Running the Application
 Once the setup is complete, you will be prompted to provide a JSON object string with the following keys and values:
@@ -102,22 +101,23 @@ After running the application, the obfuscated dataset might look like this:
 | 102        | ******     | Software Development  | Software | 2023-12-01      | ******              |
 | 103        | ******     | Data Engineering      | Data     | 2022-05-20      | MISSING VALUES      |
 
-The fields specified in `pii_fields` are obfuscated by replacing their values with `******` or `MISSING VALUES` for any missing data. The application purposely returns the processed data as a byte-stream object which is compatiblely ready to enter to a desired AWS S3 bucket. The byte-stream representation for the obfuscated dataset might look like this:
+The fields specified in `pii_fields` are obfuscated by replacing their values with `******` or `MISSING VALUES` for any missing data. The application purposely returns the processed data as a byte-stream object, which is compatible for uploading to an AWS S3 bucket. 
+
+The byte-stream representation for the obfuscated dataset might look like this:
 
 ```plaintext
 student_id,name,course,cohort,graduation_date,email_address
-101,******,Data Engineering,Winter21,2023-06-15,******
-102,******,Software Development,Summer22,2023-12-01,******
-103,******,Data Engineering,Spring21,2022-05-20,MISSING VALUES
+101,******,Data Engineering,Data,2023-06-15,******
+102,******,Software Development,Software,2023-12-01,******
+103,******,Data Engineering,Data,2022-05-20,MISSING VALUES
 ```
 
 ---
 
-
 ## Testing
 
 ### Running Tests
-All tests would have been ran with the "make all" command on setup. However if you'd like to run all tests again, you can do so by using the following command:
+All tests would have been run with the "make all" command on setup. However, if you'd like to run all tests again, you can do so by using the following command:
 
 ```bash
 make run-tests
@@ -129,6 +129,24 @@ This will execute the test suite with `pytest` and display results in a readable
 The test suite includes:
 - **Unit Tests**: Validate individual functions and modules.
 - **Integration Tests**: Verify the end-to-end functionality of the application.
+
+---
+
+## Python Version
+
+This project is developed and tested using Python **3.12.7**. Ensure you have this version installed to avoid compatibility issues.
+
+If you need to manage multiple Python versions on your system, consider using a version manager like [pyenv](https://github.com/pyenv/pyenv).
+
+### Verify Your Python Version
+
+To check your current Python version, run:
+
+```bash
+python --version
+```
+
+If you don’t have Python 3.12.7 installed, you can download it from the [official Python website](https://www.python.org/downloads/).
 
 ---
 
@@ -145,10 +163,10 @@ The project requires the following Python libraries:
 
 ## Future Improvements
 As applications continue to develop and improve, some of the many few things that could be added are:
-- Expand input flexibility: Currently only takes json strings of S3 location and fields to obfuscate. Allow for non-json strings and local machine file path support
-- Improve obfuscation ability: Currently only obfuscates string values, allow for obfuscating other data types such as date for DOB, mixed for postal codes.
-- Infrastructure as code: The application could be implemented with cloud technologies for scalability, efficiency, automation and many more advantages.
-- Output visual tools: It would be a great idea to automate visual tools for output such as Tableau.
+- **Expand Input Flexibility**: Currently, the application only accepts JSON strings of the S3 location and fields to obfuscate. Future updates could allow for non-JSON strings and local machine file path support.
+- **Improve Obfuscation Ability**: Currently, the application only obfuscates string values. Enhancements could include obfuscating other data types, such as dates for DOBs or mixed data for postal codes.
+- **Infrastructure as Code**: The application could be implemented with cloud technologies (e.g., AWS Terraform) for scalability, efficiency, and automation.
+- **Output Visual Tools**: Automate visual tools for output, such as Tableau or Power BI.
 
 ## Final Thoughts
 
