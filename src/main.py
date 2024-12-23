@@ -1,4 +1,5 @@
 import logging
+import json
 from src.file_handling import (
     download_s3_file_and_convert_to_pandas_dataframe,
     dataframe_to_bytes,
@@ -59,3 +60,12 @@ def main(input_json):
         )
         # Optionally re-raise the exception if you want the error to propagate
         raise
+
+if __name__ == "__main__":
+    # Hardcoded test input for debugging
+    json_string = json.dumps({
+        "file_to_obfuscate": "s3://gdpr-raw-data/small_csv_dummy_data.csv",
+        "pii_fields": ["name", "email_address"]
+    })
+    results = main(json_string)
+    print(results)

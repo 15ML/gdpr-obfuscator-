@@ -12,26 +12,28 @@ load-env:
 # Set up the virtual environment and install dependencies
 install-dependencies: load-env
 	@echo "Setting up the project environment..."
-	python3 -m venv venv
-	$(ACTIVATE_VENV) && pip install -r requirements.txt
+	@if [ ! -d "venv" ]; then python3 -m venv venv; fi
+	$(ACTIVATE_VENV) && venv/bin/python -m pip install -r requirements.txt
 	@echo "Project setup complete."
 
 # Command to activate the virtual environment
 activate:
 	@echo "To activate the project's virtual environment, run 'source venv/bin/activate'"
 
-# Set PYTHONPATH
-export-pythonpath:
-	export PYTHONPATH=$$(pwd)
-	@echo "PYTHONPATH set to current directory."
-
-# Run tests with pytest and testdox format
+# Run tests with pytest and Testdox format
 run-tests: load-env
 	@echo "Running tests..."
-	$(ACTIVATE_VENV) && pytest --testdox tests/
+	$(ACTIVATE_VENV) && export PYTHONPATH=$$(pwd) && pytest --testdox tests/
+
+# Run black for code formatting
+run-black:
+	$(ACTIVATE_VENV) && black --line-length 79 ./src/* ./tests/*
 
 # Run all setup tasks
-all: install-dependencies export-pythonpath run-tests
+all: install-dependencies run-tests
+
+# Run checks and formatting
+run-checks: run-black run-tests
 
 # This .PHONY line tells Make which targets are not files
-.PHONY: install-dependencies export-pythonpath run-tests all load-env activate
+.PHONY: install-dependencies run-tests run-black all run-checks load-env activate
