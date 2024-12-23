@@ -6,17 +6,16 @@ from src.file_handling import (
 )
 from src.utils import read_json_input, obfuscate_pii_fields
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 
 
 def main(input_json):
     """
     Main function to process an input JSON, download the specified file,
-    obfuscate PII fields, and return the obfuscated file as bytes.
+    obfuscate PII fields, and return the obfuscated file as byte stream object.
 
     Args:
-        input_json (str): A JSON string specifying the file path and PII fields to obfuscate.
+        input_json (str): A JSON string specifying the S3 file path and PII fields to obfuscate.
 
     Returns:
         bytes: The obfuscated file content in its original format.
@@ -58,14 +57,18 @@ def main(input_json):
             f"An error occurred during the obfuscation process: {e}",
             exc_info=True,
         )
-        # Optionally re-raise the exception if you want the error to propagate
         raise
 
 if __name__ == "__main__":
-    # Hardcoded test input for debugging
+    # Hardcoded example test input for debugging
     json_string = json.dumps({
         "file_to_obfuscate": "s3://gdpr-raw-data/small_csv_dummy_data.csv",
         "pii_fields": ["name", "email_address"]
     })
     results = main(json_string)
-    print(results)
+    
+    # Improved output formatting
+    print("\n=== Obfuscation Results ===\n")
+    for line in results.decode().split("\n"):
+        print(line)
+    print("\n===========================")

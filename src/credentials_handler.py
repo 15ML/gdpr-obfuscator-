@@ -21,8 +21,8 @@ def get_aws_credentials():
         aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
         aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
         aws_region = os.getenv(
-            "AWS_REGION", "us-east-1"
-        )  # Default to 'us-east-1' if not specified
+            "AWS_REGION", "eu-west-2"
+        )  # Default to 'eu-west-2' if not specified
 
         if aws_access_key_id and aws_secret_access_key:
             session = boto3.Session(
