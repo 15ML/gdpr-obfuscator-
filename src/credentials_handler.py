@@ -1,33 +1,37 @@
-# import os
-
-# def get_aws_credentials():
-#     """Retrieve AWS credentials from environment variables."""
-#     aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
-#     aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-#     aws_region = os.getenv("AWS_DEFAULT_REGION")
-
-
-#     if not aws_access_key_id or not aws_secret_access_key:
-#         raise ValueError("AWS credentials are missing. Please check your environment variables.")
-
-#     return aws_access_key_id, aws_secret_access_key, aws_region
-
 import boto3
 import os
+import logging
+from dotenv import load_dotenv
+
 
 def get_aws_credentials():
-    session = boto3.session.Session()
-    aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
-    aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-    
-    if aws_access_key_id and aws_secret_access_key:
-        # set credentials using .env variables
-        session.set_credentials(aws_access_key_id, aws_secret_access_key)
-        print("using credentials from .env")
-    else:
-        # use the default credentials from the AWS credentials file
-        print("using credentials from the AWS credentials file")
-    
-    return session
+    """
+    Initialize a session to retrieve AWS credentials. If credentials are successfully retrieved
+    from either AWS configuration files or environment variables, return the session.
+    If not, return None indicating failure to retrieve valid credentials.
+    """
+    load_dotenv()  # Load .env file if available
 
-session = get_aws_credentials()
+    session = boto3.Session()  # Attempt to create a session
+
+    if session.get_credentials() is not None:
+        logging.info("Using AWS credentials from the configuration.")
+        return session
+    else:
+        aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
+        aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+        aws_region = os.getenv(
+            "AWS_REGION", "us-east-1"
+        )  # Default to 'us-east-1' if not specified
+
+        if aws_access_key_id and aws_secret_access_key:
+            session = boto3.Session(
+                aws_access_key_id=aws_access_key_id,
+                aws_secret_access_key=aws_secret_access_key,
+                region_name=aws_region,
+            )
+            logging.info("Using AWS credentials from environment variables.")
+            return session
+
+        logging.error("AWS credentials could not be retrieved.")
+        return None

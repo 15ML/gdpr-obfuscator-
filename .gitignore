@@ -4,6 +4,7 @@ venv/
 *.pyc
 *.pyo
 .pytest_cache/
+.vscode/
 
 # Environment files
 .env
@@ -17,3 +18,12 @@ tests/test_data/
 # Miscellaneous
 .DS_Store
 Thumbs.db
+
+# Exclude cprofile directory and files
+cprofile/
+*.txt
+**/cprofile/*.txt
+
+# Exclude performance results and scripts
+tests/performance_results/
+tests/test_performance.py
