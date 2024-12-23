@@ -15,7 +15,6 @@ class TestDownloadFromS3AndConvertToPandas:
     which handles downloading files from S3 and converting them to pandas DataFrames.
     """
 
-    # Sample test input paths
     csv_path = '{"file_to_obfuscate": "s3://mybucket/csv_data.csv"}'
     json_path = '{"file_to_obfuscate": "s3://mybucket/json_data.json"}'
     parquet_path = (
@@ -169,6 +168,8 @@ class TestFinalUserOutputIsConvertedFromDataframeToByteStreamObject:
         )
         result = dataframe_to_bytes(df, "parquet")
         buffer = io.BytesIO(result)
+
+        # Confirm output using pandas read_parquet
         df_parquet = pd.read_parquet(buffer)
         pd.testing.assert_frame_equal(df, df_parquet)
 

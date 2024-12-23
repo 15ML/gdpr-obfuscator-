@@ -12,8 +12,8 @@ load-env:
 # Set up the virtual environment and install dependencies
 install-dependencies: load-env
 	@echo "Setting up the project environment..."
-	python3 -m venv venv
-	$(ACTIVATE_VENV) && pip install -r requirements.txt
+	@if [ ! -d "venv" ]; then python3 -m venv venv; fi
+	$(ACTIVATE_VENV) && venv/bin/python -m pip install -r requirements.txt
 	@echo "Project setup complete."
 
 # Command to activate the virtual environment
@@ -23,7 +23,7 @@ activate:
 # Run tests with pytest and Testdox format
 run-tests: load-env
 	@echo "Running tests..."
-	$(ACTIVATE_VENV) && PYTHONPATH=$$(pwd) pytest --testdox tests/
+	$(ACTIVATE_VENV) && export PYTHONPATH=$$(pwd) && pytest --testdox tests/
 
 # Run black for code formatting
 run-black:

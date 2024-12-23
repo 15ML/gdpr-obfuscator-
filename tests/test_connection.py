@@ -12,7 +12,7 @@ class TestConnectingToAWSServices:
     Tests for verifying AWS S3 client connectivity and operations.
     """
 
-    def test_s3_client_initialised_from_connection_file(self, mock_s3_setup):
+    def test_s3_client_initialised_from_conftest_file(self, mock_s3_setup):
         """
         Test that the S3 client initializes properly using the mock_s3_setup fixture.
         """

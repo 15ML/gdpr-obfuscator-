@@ -8,7 +8,6 @@ from moto import mock_aws
 
 # Fixtures for mocking AWS and credentials
 
-
 @pytest.fixture(scope="function")
 def aws_creds():
     """
@@ -40,7 +39,6 @@ def mock_s3_setup(aws_creds):
     Mock an S3 environment, set up a bucket, and upload test files.
     """
     with mock_aws():
-        # Initialize mock S3 client
         s3 = boto3.client("s3", region_name="eu-west-2")
         s3.create_bucket(
             Bucket="mybucket",

@@ -5,7 +5,6 @@ import io
 import logging
 from botocore.exceptions import ClientError
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 
 s3 = boto3.client('s3')
@@ -15,10 +14,10 @@ def download_s3_file_and_convert_to_pandas_dataframe(file_to_obfuscate):
     Download a file from S3 and load it into a pandas DataFrame based on the file's type.
     
     Args:
-        file_to_obfuscate (str): The path to the file in S3 or a JSON string containing the path.
+        file_to_obfuscate (str): A JSON string containing the path to the file in S3 bucket.
     
     Returns:
-        pd.DataFrame: The data from the S3 file loaded into a DataFrame.
+        pd.DataFrame: The data from the S3 file loaded into a Pandas DataFrame.
     
     Raises:
         ValueError: If the input path is invalid or the file type is unsupported.
@@ -59,7 +58,7 @@ def download_s3_file_and_convert_to_pandas_dataframe(file_to_obfuscate):
 
 def dataframe_to_bytes(df: pd.DataFrame, file_type):
     """
-    Convert a DataFrame to bytes, suitable for saving to a file.
+    Convert a DataFrame to bytes, suitable for saving to a file for S3.
 
     Args:
         df (pd.DataFrame): DataFrame to convert.

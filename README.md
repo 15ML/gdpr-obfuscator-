@@ -64,6 +64,17 @@ This will:
 ### Before Running the Application
 Ensure that your dataset files are uploaded to an accessible S3 bucket before running the application. Double-check that policies are in place, such as the permissions to read files ([s3:GetObject](https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)) from your S3 bucket.
 
+1. **Export the Python Path**  
+   Ensure the `PYTHONPATH` is correctly set by running the following command:
+   ```bash
+   export PYTHONPATH=$(pwd)
+   ```
+
+2. **Activate the Virtual Environment**  
+   Verify that you are in the virtual environment by checking for `(venv)` in your terminal prompt. If not, activate it using:
+   ```bash
+   source venv/bin/activate
+
 ### Running the Application
 Once the setup is complete, you will be prompted to provide a JSON object string with the following keys and values:
 
@@ -111,6 +122,18 @@ student_id,name,course,cohort,graduation_date,email_address
 102,******,Software Development,Software,2023-12-01,******
 103,******,Data Engineering,Data,2022-05-20,MISSING VALUES
 ```
+
+---
+
+### Predefined Example
+
+To see a pre-existing example, run:
+
+   ```bash
+   python src/main.py
+   ```
+
+The predefined example is located in src/main.py at lines 67 and 68. This demonstrates the application using a sample dummy dataset stored in an S3 bucket. To customize this example for your own data, update the S3 URI and pii_fields values accordingly to point to your dataset and specify the fields you wish to obfuscate.
 
 ---
 
